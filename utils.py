@@ -1,3 +1,6 @@
+from typing import Any, Callable
+
+
 def bold(text: str) -> str:
 	"""
 	Returns the given text wrapped in ANSI escape codes to display it in bold.
@@ -15,6 +18,54 @@ def dark_gray(text: str) -> str:
 		return text
 	return f'\033[1;30m{text}\033[0m'
 
+def print_matrix(matrix: list[list[Any]], transformer: Callable[[str, Any, int, int], str] = None, cell_padding = 2, header_row = True, header_column = True) -> None:
+	"""
+	Displays a matrix.
+	Args:
+		- table : The matrix to display
+		- transformer : Allows to transform the rendering of a cell based on its value and its position in the matrix.
+
+			This is useful for empty cells of adjacency matrix, which we want to render as dark gray asterisks. 
+			We have to apply the dark_gray *after* applying the python `center` method (the other way around does not function properly).\\
+			This lambda function allows us to perform this transformation.
+		- cell_padding : The spacing to apply on the left and right of each cell
+		- header_row : Whether to display the first row in bold.
+		- header_column : Whether to display the first column in bold.
+	"""
+	N = len(matrix)
+	border_top = '╔' # Top border of the table
+	row_sep = '╠' # Separator between each row
+	border_bot = '╚' # Bottom border of the table
+	col_lengths = [] # Represents the length of each column, based on the length of its longuest cell
+	# This generates the top, bottom, and separator lines to correctly align with the size of each cell.
+	for i in range(N):
+		max_cell_length = max([len(str(matrix[j][i])) for j in range(N)]) + cell_padding * 2
+		col_lengths.append(max_cell_length)
+		line = '═' * max_cell_length
+		border_top += line + '╦'
+		row_sep += line + '╬'
+		border_bot += line + '╩'
+	# We replace the last character with a closing character instead of the previous connecting ones
+	border_top = border_top[:-1] + '╗'
+	row_sep = row_sep[:-1] + '╣'
+	border_bot = border_bot[:-1] + '╝'
+	print(border_top)
+	# This loop displays each row of the table
+	for i in range(N):
+		line = matrix[i]
+		row = '║'
+		for j in range(N):
+			cell = line[j]
+			padded = str(line[j]).center(col_lengths[j], ' ')
+			if i == 0 and header_row or j == 0 and header_column:
+				padded = bold(padded)
+			if transformer:
+				padded = transformer(padded, cell, i, j)
+			row+= padded + '║'
+		print(row)
+		if i + 1 < N: # We print a separator after each row, except the last one since the bottom border comes afterwards
+			print(row_sep)
+	print(border_bot)
 
 def yesno(question: str) -> bool:
 	"""

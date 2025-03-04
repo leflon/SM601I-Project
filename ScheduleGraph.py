@@ -1,4 +1,4 @@
-from utils import bold, dark_gray
+from utils import bold, dark_gray, print_matrix
 class ScheduleGraph:
     def __init__(self, path: str):
         """
@@ -24,7 +24,7 @@ class ScheduleGraph:
         # We add two vertices for the alpha and omega tasks
         # Absent edges are represented as None, to avoid confusion with 0-valued edges from alpha.
         """Adjacency matrix of the graph"""
-        self.matrix = [[None for _ in range(len(lines) + 2)] for _ in range(len(lines) + 2)]
+        self.matrix: list[list[int | None]] = [[None for _ in range(len(lines) + 2)] for _ in range(len(lines) + 2)]
         for line in lines:
             split = line.strip().split(' ') # strip() gets rid of the trailing \n character
             vertex = int(split[0])
@@ -47,6 +47,23 @@ class ScheduleGraph:
         Displays the adjacency matrix of the graph.
         """
         N = len(self.matrix)
+        adapted_matrix = [] # Adds the names of rows and columns to the matrix, and replaces Nones with asterisks
+        vertex_name = lambda index: 'α' if index == 0 else 'ω' if index == N - 1 else str(index)
+        top_row = ['\\'] # This first cell is the top corner of the table.
+        for i in range(N):
+            top_row.append(vertex_name(i))
+        adapted_matrix = [top_row]
+        for i in range(N):
+            row = self.matrix[i]
+            row.insert(0, vertex_name(i))
+            for j in range(N + 1):
+                if row[j] == None: 
+                    row[j] = '*'
+            adapted_matrix.append(row)
+        # We want to display all asterisks and the very first cell in dark gray for better readability.
+        print_matrix(adapted_matrix, lambda render, val, i, j: dark_gray(render) if val == '*' or i == j == 0 else render)
+
+        return
         CELL_PADDING = 2 # Padding added at the left and right of each cell, for better readability.
         # This will be useful to render the top row and left column.
         vertex_name = lambda index: 'α' if index == 0 else 'ω' if index == N - 1 else str(index)
