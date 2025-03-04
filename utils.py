@@ -28,3 +28,28 @@ def yesno(question: str) -> bool:
 	while answer not in ['y', 'n']:
 		answer = input(question + ' [y/n]: ')[:1].lower()		
 	return answer == 'y'
+
+
+def menu(options: list[str]) -> int:
+	"""
+	Displays a menu of options and prompts the user to select one.
+	Args:
+		options: A list of strings representing the menu options.
+	Returns:
+		int: The index of the selected option (0-based).
+	The function prints each option with a corresponding number starting from 1.
+	It then prompts the user to input a number corresponding to one of the options.
+	If the input is not a valid number or not within the range of options, it will
+	continue to prompt the user until a valid selection is made.
+	"""
+	N = len(options)
+	for i in range(N):
+		print(f'{i + 1}. {options[i]}')
+	answer = -1
+	while not (answer >= 1 and answer <= N):
+		inp = input(f'Please select an option [1-{N}]: ')
+		try:
+			answer = int(inp)
+		except:
+			pass
+	return answer - 1
