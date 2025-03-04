@@ -1,16 +1,29 @@
-from utils import bold, dark_gray, yesno
+from utils import bold, dark_gray
 class ScheduleGraph:
     def __init__(self, path: str):
         """
         Initializes a ScheduleGraph object by reading a constraint table from a file.
         Args:
             path: The file path to the schedule data.
-        """     
+        """
+
+        """Rank of each vertex of the graph"""
+        self.ranks = []
+        """Earliest date of each task"""
+        self.earliest_dates = []
+        """Latest date of each task"""
+        self.latest_dates = []
+        """Total float of each task"""
+        self.total_floats = []
+        """Free float of each task"""
+        self.free_floats = []
+
         file = open(path, 'r')
         lines = file.readlines()
         file.close()
         # We add two vertices for the alpha and omega tasks
         # Absent edges are represented as None, to avoid confusion with 0-valued edges from alpha.
+        """Adjacency matrix of the graph"""
         self.matrix = [[None for _ in range(len(lines) + 2)] for _ in range(len(lines) + 2)]
         for line in lines:
             split = line.strip().split(' ') # strip() gets rid of the trailing \n character
@@ -85,4 +98,31 @@ class ScheduleGraph:
                 print(sep)
         print(bot)
 
-ScheduleGraph('test.txt').display_matrix()
+
+    def check(self, display_result=False) -> bool:
+        """
+        Checks that the necessary properties of the graph such that it can serve as a scheduling graph are satisfied. That is:
+         - No cycle
+         - No negative edges
+         Args:
+            display_result: Whether the function should display the result of the check in addition to returning it.
+        """ 
+        #TODO: implement
+        #Assigned to: @mattelothere
+        pass
+    
+    def compute_ranks(self) -> None:
+        """
+        Computes are stores the ranks of each vertex of the graph
+        """
+        #TODO: implement
+        #Assigned to: @matthelothere
+        pass
+    
+    def compute_calendars(self) -> None:
+        """
+        Computes and stores the earliest/latest dates and the floats.
+        """
+        #TODO: implement
+        #Assigned to: @hexadelusional @iri-rsl
+        pass
