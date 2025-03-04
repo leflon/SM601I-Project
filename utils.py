@@ -6,12 +6,12 @@ def bold(text: str) -> str:
 	Returns:
 		str: The text formatted in bold using ANSI escape codes.
 	"""
-	if 'DISABLE_ANSI' in vars() and DISABLE_ANSI: # this global variable is defined in the project's entry file
+	if 'DISABLE_ANSI' in vars() and DISABLE_ANSI: # This global variable is defined in the project's entry file. If it is not defined, it will be ignored.
 		return text
 	return f'\033[1m{text}\033[0m'
 
 def dark_gray(text: str) -> str:
-	if 'DISABLE_ANSI' in vars() and DISABLE_ANSI: # this global variable is defined in the project's entry file
+	if 'DISABLE_ANSI' in vars() and DISABLE_ANSI: # This global variable is defined in the project's entry file. If it is not defined, it will be ignored.
 		return text
 	return f'\033[1;30m{text}\033[0m'
 

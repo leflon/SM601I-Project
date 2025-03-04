@@ -30,40 +30,42 @@ class ScheduleGraph:
                 self.matrix[i][len(lines) + 1] = int(lines[i - 1].split(' ')[1])
 
     def display_matrix(self):
+        """
+        Displays the adjacency matrix of the graph.
+        """
         N = len(self.matrix)
+        CELL_PADDING = 2 # Padding added at the left and right of each cell, for better readability.
+        # This will be useful to render the top row and left column.
+        vertex_name = lambda index: 'α' if index == 0 else 'ω' if index == N - 1 else str(index)
         top = '╔' # Top border of the table
         sep = '╠' # Separator between each row
         bot = '╚' # Bottom border of the table
         col_lengths = [] # Represents the length of each column, based on the length of its longuest cell
-        # This loops defines the upper 4 variables based the matrix' cells lengths
+        # This generates the top, bottom, and separator lines to correctly align with the size of each cell.
         for i in range(N + 1): # + 1 to account for the heading column
             if (i == 0): # This is the heading column, the cells will simply contain names of each vertex, which are merely the indexes of the array.
-                max_cell_length = len(str(N - 1)) + 2 # +2 is added for padding, -1 is added in case the last index is 10. Since it's replaced by 
-                                                      # omega, one character, this avoids unnecessary big cells, if that ever happens.
+                max_cell_length = len(str(N - 1)) + CELL_PADDING * 2 # -1 is added in case the last cell index adds a new digit (10, 100, etc.). 
+                                                                     # Since it's replaced by omega, one character, this avoids unnecessary big cells, if that ever happens
             else:
-                # Iterating through the current column, we keep the l
-                max_cell_length = max([len(str(self.matrix[j][i - 1])) if self.matrix[j][i - 1] != None else 1 for j in range(N)]) + 2 # + 2 for padding
+                # Iterating through the current column, we keep the longuest cell length to correctly align every row
+                max_cell_length = max([len(str(self.matrix[j][i - 1])) if self.matrix[j][i - 1] != None else 1 for j in range(N)]) + CELL_PADDING * 2
             col_lengths.append(max_cell_length)
             line = '═' * max_cell_length
             top += line + '╦'
             sep += line + '╬'
             bot += line + '╩'
+        # We replace the last character with a closing character instead of the previous connecting ones
         top = top[:-1] + '╗'
         sep = sep[:-1] + '╣'
         bot = bot[:-1] + '╝'
         print(top)
         header_row = '║'
-        # This loops prints the header row, displaying the name of each column
-        for i in range(N + 1): # + 1 for the empty top-left corner 
+        # This loops generates the header row, displaying the name of each column
+        for i in range(N + 1): # Since we have a "header" column as well, the very top-left corner is left empty.
             if i == 0: # Empty corner
-                header_row+= '\\'.center(col_lengths[0], ' ') + '║'
-            else: 
-                if i == 1:
-                    name = 'α'
-                elif i == N:
-                    name = 'ω'
-                else: 
-                    name = str(i - 1)
+                header_row+= dark_gray('\\'.center(col_lengths[0], ' ')) + '║'
+            else:
+                name = vertex_name(i - 1) # since the first iteration is done on the empty corner, everything is shifted one cell to the right.
                 header_row += bold(name.center(col_lengths[i], ' ')) + '║'
         print(header_row)
         print(sep)
@@ -71,12 +73,7 @@ class ScheduleGraph:
         for i in range(N):
             # First, it displays the name of each row
             line = self.matrix[i]
-            if i == 0:
-                name = 'α'
-            elif i == N - 1:
-                name = 'ω'
-            else: 
-                name = str(i)
+            name = vertex_name(i)
             row = '║' + bold(name.center(col_lengths[0], ' ')) + '║'
             # This loop displays the rest of the row
             for j in range(N):
@@ -88,5 +85,4 @@ class ScheduleGraph:
                 print(sep)
         print(bot)
 
-
-ScheduleGraph('test.txt').display_matrix()#
+ScheduleGraph('test.txt').display_matrix()
