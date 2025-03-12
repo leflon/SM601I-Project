@@ -42,7 +42,11 @@ while running:
 		working_file = files[selected_index]
 		# Then, we can instantiate our ScheduleGraph and run the different algorithms on it
 		print(f'Importing constraints from {bold(working_file)}...')
-		graph = ScheduleGraph(working_file)
-		graph.display_matrix()
+		try:
+			graph = ScheduleGraph(working_file)
+			graph.display_matrix()
+		except:
+			# TODO: Give more informations about the error.
+			print('Something went wrong. Pleae make sure the constraint table is in the right format.')
 		# TODO: implement the rest of the features when individual algorithms are implemented
 		# Assigned to: @paulleflon
