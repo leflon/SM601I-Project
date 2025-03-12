@@ -19,14 +19,14 @@ class ScheduleGraph:
         self.free_floats = []
 
         file = open(path, 'r')
-        lines = file.readlines()
+        lines = [line.strip() for line in file.readlines() if line.strip() != '']
         file.close()
         # We add two vertices for the alpha and omega tasks
         # Absent edges are represented as None, to avoid confusion with 0-valued edges from alpha.
         """Adjacency matrix of the graph"""
         self.matrix: list[list[int | None]] = [[None for _ in range(len(lines) + 2)] for _ in range(len(lines) + 2)]
         for line in lines:
-            split = line.strip().split(' ') # strip() gets rid of the trailing \n character
+            split = line.split(' ')
             vertex = int(split[0])
             constraints = [int(c) for c in split[2:]]
             if len(constraints) == 0:
