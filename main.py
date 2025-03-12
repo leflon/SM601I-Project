@@ -47,6 +47,6 @@ while running:
 			graph.display_matrix()
 		except:
 			# TODO: Give more informations about the error.
-			print('Something went wrong. Pleae make sure the constraint table is in the right format.')
+			print('Something went wrong. Please make sure the constraint table is in the right format.')
 		# TODO: implement the rest of the features when individual algorithms are implemented
 		# Assigned to: @paulleflon
