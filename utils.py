@@ -41,12 +41,13 @@ def print_matrix(matrix: list[list[Any]], transformer: Callable[[str, Any, int, 
 		- header_column : Whether to display the first column in bold.
 	"""
 	N = len(matrix)
+	M = len(matrix[0])
 	border_top = '╔' # Top border of the table
 	row_sep = '╠' # Separator between each row
 	border_bot = '╚' # Bottom border of the table
 	col_lengths = [] # Represents the length of each column, based on the length of its longuest cell
 	# This generates the top, bottom, and separator lines to correctly align with the size of each cell.
-	for i in range(N):
+	for i in range(M):
 		max_cell_length = max([len(str(matrix[j][i])) for j in range(N)]) + cell_padding * 2
 		col_lengths.append(max_cell_length)
 		line = '═' * max_cell_length
@@ -62,7 +63,7 @@ def print_matrix(matrix: list[list[Any]], transformer: Callable[[str, Any, int, 
 	for i in range(N):
 		line = matrix[i]
 		row = '║'
-		for j in range(N):
+		for j in range(M):
 			cell = line[j]
 			padded = str(line[j]).center(col_lengths[j], ' ')
 			if i == 0 and header_row or j == 0 and header_column:
