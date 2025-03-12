@@ -1,5 +1,9 @@
 from utils import bold, dark_gray, print_matrix
 import copy     # copy lists by value, and not by reference
+
+# TODO : add a output parameter, and redirect all the prints to that parameter.
+# this will be useful for creating the asked-for logs
+
 class ScheduleGraph:
     def __init__(self, path: str):
         """
@@ -150,7 +154,7 @@ class ScheduleGraph:
             """
             target_matrix.pop(row_index)
 
-        def check_cycle() -> bool:
+        def has_cycle() -> bool:
             """
             Checks if there is a cycle in the graph.
             Returns:
@@ -190,13 +194,17 @@ class ScheduleGraph:
             else: 
                 return True
             # Repeat until 1/ matrix is empty 2/ eliminated set = []
-            
 
-        if has_negative_edge() and check_cycle():
-            if display_result:  print("The graph verifies the absence of cycles and negative edges => is a valid scheduling graph.")
-            return True
+        if not has_negative_edge():
+            # TODO : WHY DOES FINDING NEGATIVE EDGES IS NOT WORKING ????? ALEDD
+            if not has_cycle():
+                if display_result:  print("The graph verifies the absence of cycles and negative edges => is a valid scheduling graph.")
+                return True
+            else:
+                if display_result: print("there is a cycle => not a scheduling graph")
+                return False
         else:
-            if display_result:  print("The graph fails to verify absence of cycles and negative edges => is not a scheduling graph.")
+            if display_result:  print("there is a negative edge => not a scheduling graph")
             return False 
 
 
@@ -224,8 +232,10 @@ if __name__ == "__main__":
     C = ScheduleGraph("constraints cycle.txt")
     D = ScheduleGraph("constraints.txt")
     E = ScheduleGraph("constraints negative edge.txt")
-    print("is C a scheduling graph ? the answer is : {}".format(C.check()))     # should return False (cycle)
-    print("is D a scheduling graph ? the answer is : {}".format(D.check()))     # should return True
-    print("is E a scheduling graph ? the answer is : {}".format(C.check()))     # should return False (negative edge)
+    print("is C a scheduling graph ? the answer is : {}".format(C.check(display_result=1)))     # should return False (cycle)
+    print("is D a scheduling graph ? the answer is : {}".format(D.check(display_result=1)))     # should return True
+    print("is E a scheduling graph ? the answer is : {}".format(C.check(display_result=1)))     # should return False (negative edge)
+
+    # D.display_matrix()
     
     
