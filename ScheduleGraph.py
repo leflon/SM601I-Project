@@ -52,9 +52,9 @@ class ScheduleGraph:
         top_row = ['\\'] # This first cell is the top corner of the table.
         for i in range(N):
             top_row.append(vertex_name(i))
-        adapted_matrix = [top_row]
+        adapted_matrix = [top_row.copy()]
         for i in range(N):
-            row = self.matrix[i]
+            row = self.matrix[i].copy()
             row.insert(0, vertex_name(i))
             for j in range(N + 1):
                 if row[j] == None: 
