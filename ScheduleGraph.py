@@ -76,13 +76,15 @@ class ScheduleGraph:
         #TODO: implement
         #Assigned to: @mattelothere
 
-        
-        def get_predecessor(vertex_index:int, verbose_mode:bool = False) -> list[int]:
+        # Subfunctions to be used in the check() function
+        def get_predecessor(vertex_index:int, target_matrix:list[list[int]] = self.matrix, verbose_mode:bool = False) -> list[int]:
             """
-            returns a list of the predecessors of a vertex
+            returns a list of the predecessors of a vertex in a particular target matrix
+            if target_matrix is not provided, then we'll look for the predecessors of that vertex in the self.matrix
             Args:
                 vertex_index: an int to tell which vertex we are talking about
                 verbose_mode: an int defaulting to False that enables verbose prints if set to True.
+                target_matrix: a list of lists of ints representing the adjacency matrix, defaulting to self.matrix
             Returns:
                 list: list containing the predecessors of that vertex
             Examples:
@@ -95,11 +97,11 @@ class ScheduleGraph:
             >get_predecessor(5), i.e. predecessors of "O" will return the indices of "3" and "4" : [3, 4]
             >get_predecessor(0), i.e. predecessors of "A" will return an empty list : []
             """
-            vertices = ["α"]+[str(i) for i in range(1, len(self.matrix)-1)]+["ω"]
+            vertices = ["α"]+[str(i) for i in range(1, len(target_matrix)-1)]+["ω"]
             j = vertex_index  # for conciseness 
             answer = []
-            for i in range(len(self.matrix)): # for every line of the adjacency mat, 
-                if self.matrix[i][j] != None: # looking at the column of the vertex, if theres a non-null value,  
+            for i in range(len(target_matrix)): # for every line of the adjacency mat, 
+                if target_matrix[i][j] != None: # looking at the column of the vertex, if theres a non-null value,  
                     answer.append(i)   # then j has at least 1 predecessor
                     if verbose_mode: print("The vertex {} has a predecessor : at indices [{}][{}], \
                     {} is accessible from {}".format(vertices[j], i, j, vertices[j], vertices[i]))
@@ -108,17 +110,18 @@ class ScheduleGraph:
                     {} is not accessible from {}".format(vertices[j], i, j, vertices[j], vertices[j]))
             return answer        
 
-        def check_negative_edge() -> bool:
+        def has_negative_edge(target_matrix:list[list[int]] = self.matrix) -> bool:
             """
-            checks if there is at least one negative edge in the graph
-            
-            Example : 
-            if there is a negative edge, this returns True
-            if there is no negative edge, this returns False
+            checks if there is at least one negative edge in the target_matrix
+            if target_matrix is not provided, then we'll look in self.matrix
+            Args:
+                target_matrix: a list of lists of ints representing the adjacency matrix, defaulting to self.matrix
+            Returns:
+                bool: True if there is a negative edge, False otherwise
             """
 
             answer = False  # until proven contrary, there are no negative weighted edgeds in the graph
-            for line in self.matrix:
+            for line in target_matrix:
                 col = 0
                 while col < len(line) and answer == False:  # go out of the loop as soon as theres a negative
                     if line[col] != None:
@@ -126,7 +129,7 @@ class ScheduleGraph:
                     col += 1
             return answer
 
-        def remove_col(col_index:int, matrix:list[list[int]]) -> None:
+        def remove_col(col_index:int, target_matrix:list[list[int]]) -> None:
             """
             pops a column out of a matrix (in place)
 
@@ -134,10 +137,10 @@ class ScheduleGraph:
                 col_index: int indexing which column we should remove
                 matrix: list of lists of ints 
             """
-            for i in range(len(matrix)):
-                matrix[i].pop(col_index)
+            for i in range(len(target_matrix)):
+                target_matrix[i].pop(col_index)
                 
-        def remove_line(row_index:int, matrix:list[list[int]]) -> None:
+        def remove_line(row_index:int, target_matrix:list[list[int]]) -> None:
             """
             pops a row out of a matrix (in place)
             
@@ -145,7 +148,7 @@ class ScheduleGraph:
                 col_index: int indexing which row we should remove
                 matrix: list of lists of ints 
             """
-            matrix.pop(row_index)
+            target_matrix.pop(row_index)
 
         def check_cycle() -> bool:
             """
@@ -153,28 +156,34 @@ class ScheduleGraph:
             Returns:
                 bool: True if there is a cycle, False otherwise.
             """
+            # TODO : why the heck is there no link between the last vertex and omega ? double check dead end linking in the end of the constructor
+            # TODO : check if the graph is connected, if not, return False
+
+            # TODO : reforge the function to be usable on any matrix
+            
             # initialization
             eliminated_vertices = []
             current_matrix = copy.deepcopy(self.matrix)
-
-
-            k = 0
             running = True
+            k = 0
             while running:
                 # for every vertex in the graph, look if they have a predecessor.
                 for i in range(len(current_matrix)):
-                    predecessors = get_predecessor(i)
+                    predecessors = get_predecessor(i, current_matrix)
                     if predecessors == []:
                         eliminated_vertices.append(i)
-                
+                        
                 # eliminate those who don't have predecessors
                 for vertex in eliminated_vertices:
+                    vertex = vertex - eliminated_vertices.index(vertex)  # to avoid index out of range, since removing elements shifts everything
+            
                     remove_col(vertex, current_matrix)
                     remove_line(vertex, current_matrix)
 
                 running = eliminated_vertices != []
-                k += 1
+            
                 eliminated_vertices = []     # remove all values from eliminated_vertices
+                k += 1
 
             if current_matrix == []:
                 return False
@@ -182,7 +191,13 @@ class ScheduleGraph:
                 return True
             # Repeat until 1/ matrix is empty 2/ eliminated set = []
             
-        print(check_cycle())
+
+        if has_negative_edge() and check_cycle():
+            if display_result:  print("The graph verifies the absence of cycles and negative edges => is a valid scheduling graph.")
+            return True
+        else:
+            if display_result:  print("The graph fails to verify absence of cycles and negative edges => is not a scheduling graph.")
+            return False 
 
 
     
@@ -191,6 +206,7 @@ class ScheduleGraph:
         Computes are stores the ranks of each vertex of the graph
         """
         #TODO: implement
+        # note : the ranks can be deduced using the check() fonction
         #Assigned to: @mattelothere
         pass
     
@@ -204,10 +220,12 @@ class ScheduleGraph:
 
 
 if __name__ == "__main__":
+    # ask to @mattelothere for the constraints test files
     C = ScheduleGraph("constraints cycle.txt")
     D = ScheduleGraph("constraints.txt")
-
-    print("for a non cyclic : ", D.check())
-    print("For a cyclic : ", C.check())
+    E = ScheduleGraph("constraints negative edge.txt")
+    print("is C a scheduling graph ? the answer is : {}".format(C.check()))     # should return False (cycle)
+    print("is D a scheduling graph ? the answer is : {}".format(D.check()))     # should return True
+    print("is E a scheduling graph ? the answer is : {}".format(C.check()))     # should return False (negative edge)
     
     
