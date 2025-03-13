@@ -1,5 +1,6 @@
 from utils import bold, dark_gray, print_matrix
-import copy     # copy lists by value, and not by reference
+from utils import remove_line, remove_col, get_predecessor, has_negative_edge
+import copy
 
 # TODO : add a output parameter, and redirect all the prints to that parameter.
 # this will be useful for creating the asked-for logs
@@ -68,6 +69,43 @@ class ScheduleGraph:
         # We want to display all asterisks and the very first cell in dark gray for better readability.
         print_matrix(adapted_matrix, lambda render, val, i, j: dark_gray(render) if val == '*' or i == j == 0 else render)
 
+    def has_cycle(self) -> bool:
+        """
+        Checks if there is a cycle in the graph.
+        Returns:
+            bool: True if there is a cycle, False otherwise.
+        """
+        # TODO : check if the graph is connected, if not, return False
+        
+        # initialization
+        eliminated_vertices = []
+        current_matrix = copy.deepcopy(self.matrix)
+        running = True
+        k = 0
+        while running:
+            # for every vertex in the graph, look if they have a predecessor.
+            for i in range(len(current_matrix)):
+                predecessors = get_predecessor(i, current_matrix)
+                if predecessors == []:
+                    eliminated_vertices.append(i)
+                    
+            # eliminate those who don't have predecessors
+            for vertex in eliminated_vertices:
+                vertex = vertex - eliminated_vertices.index(vertex)  # to avoid index out of range, since removing elements shifts everything
+        
+                remove_col(vertex, current_matrix)
+                remove_line(vertex, current_matrix)
+
+            running = eliminated_vertices != []
+        
+            eliminated_vertices = []     # remove all values from eliminated_vertices
+            k += 1
+
+        if current_matrix == []:
+            return False
+        else: 
+            return True
+        # Repeat until 1/ matrix is empty 2/ eliminated set = []
 
     def check(self, display_result=False) -> bool:
         """
@@ -77,127 +115,9 @@ class ScheduleGraph:
          Args:
             display_result: Whether the function should display the result of the check in addition to returning it.
         """ 
-        #TODO: implement
         #Assigned to: @mattelothere
-
-        # Subfunctions to be used in the check() function
-        def get_predecessor(vertex_index:int, target_matrix:list[list[int]] = self.matrix, verbose_mode:bool = False) -> list[int]:
-            """
-            returns a list of the predecessors of a vertex in a particular target matrix
-            if target_matrix is not provided, then we'll look for the predecessors of that vertex in the self.matrix
-            Args:
-                vertex_index: an int to tell which vertex we are talking about
-                verbose_mode: an int defaulting to False that enables verbose prints if set to True.
-                target_matrix: a list of lists of ints representing the adjacency matrix, defaulting to self.matrix
-            Returns:
-                list: list containing the predecessors of that vertex
-            Examples:
-            Consider the following : 1-->2--->3 
-                                    /          \
-                                   A------>4--->O
-            with :
-            vertices = ["A", "1", ..., "4", "O"]
-
-            >get_predecessor(5), i.e. predecessors of "O" will return the indices of "3" and "4" : [3, 4]
-            >get_predecessor(0), i.e. predecessors of "A" will return an empty list : []
-            """
-            vertices = ["α"]+[str(i) for i in range(1, len(target_matrix)-1)]+["ω"]
-            j = vertex_index  # for conciseness 
-            answer = []
-            for i in range(len(target_matrix)): # for every line of the adjacency mat, 
-                if target_matrix[i][j] != None: # looking at the column of the vertex, if theres a non-null value,  
-                    answer.append(i)   # then j has at least 1 predecessor
-                    if verbose_mode: print("The vertex {} has a predecessor : at indices [{}][{}], \
-                    {} is accessible from {}".format(vertices[j], i, j, vertices[j], vertices[i]))
-                else:
-                    if verbose_mode: print("The vertex {} has no predecessor at index [{}][{}], \
-                    {} is not accessible from {}".format(vertices[j], i, j, vertices[j], vertices[j]))
-            return answer        
-
-        def has_negative_edge(target_matrix:list[list[int]] = self.matrix) -> bool:
-            """
-            checks if there is at least one negative edge in the target_matrix
-            if target_matrix is not provided, then we'll look in self.matrix
-            Args:
-                target_matrix: a list of lists of ints representing the adjacency matrix, defaulting to self.matrix
-            Returns:
-                bool: True if there is a negative edge, False otherwise
-            """
-
-            answer = False  # until proven contrary, there are no negative weighted edgeds in the graph
-            for line in target_matrix:
-                col = 0
-                while col < len(line) and answer == False:  # go out of the loop as soon as theres a negative
-                    if line[col] != None:
-                        answer = line[col] < 0  # this will be True if theres a negative
-                    col += 1
-            return answer
-
-        def remove_col(col_index:int, target_matrix:list[list[int]]) -> None:
-            """
-            pops a column out of a matrix (in place)
-
-            Args : 
-                col_index: int indexing which column we should remove
-                matrix: list of lists of ints 
-            """
-            for i in range(len(target_matrix)):
-                target_matrix[i].pop(col_index)
-                
-        def remove_line(row_index:int, target_matrix:list[list[int]]) -> None:
-            """
-            pops a row out of a matrix (in place)
-            
-             Args : 
-                col_index: int indexing which row we should remove
-                matrix: list of lists of ints 
-            """
-            target_matrix.pop(row_index)
-
-        def has_cycle() -> bool:
-            """
-            Checks if there is a cycle in the graph.
-            Returns:
-                bool: True if there is a cycle, False otherwise.
-            """
-            # TODO : why the heck is there no link between the last vertex and omega ? double check dead end linking in the end of the constructor
-            # TODO : check if the graph is connected, if not, return False
-
-            # TODO : reforge the function to be usable on any matrix
-            
-            # initialization
-            eliminated_vertices = []
-            current_matrix = copy.deepcopy(self.matrix)
-            running = True
-            k = 0
-            while running:
-                # for every vertex in the graph, look if they have a predecessor.
-                for i in range(len(current_matrix)):
-                    predecessors = get_predecessor(i, current_matrix)
-                    if predecessors == []:
-                        eliminated_vertices.append(i)
-                        
-                # eliminate those who don't have predecessors
-                for vertex in eliminated_vertices:
-                    vertex = vertex - eliminated_vertices.index(vertex)  # to avoid index out of range, since removing elements shifts everything
-            
-                    remove_col(vertex, current_matrix)
-                    remove_line(vertex, current_matrix)
-
-                running = eliminated_vertices != []
-            
-                eliminated_vertices = []     # remove all values from eliminated_vertices
-                k += 1
-
-            if current_matrix == []:
-                return False
-            else: 
-                return True
-            # Repeat until 1/ matrix is empty 2/ eliminated set = []
-
-        if not has_negative_edge():
-            # TODO : WHY DOES FINDING NEGATIVE EDGES IS NOT WORKING ????? ALEDD
-            if not has_cycle():
+        if not has_negative_edge(self.matrix):
+            if not self.has_cycle():
                 if display_result:  print("The graph verifies the absence of cycles and negative edges => is a valid scheduling graph.")
                 return True
             else:
@@ -206,7 +126,6 @@ class ScheduleGraph:
         else:
             if display_result:  print("there is a negative edge => not a scheduling graph")
             return False 
-
 
     
     def compute_ranks(self) -> None:
@@ -225,17 +144,4 @@ class ScheduleGraph:
         #TODO: implement
         #Assigned to: @hexadelusional @iri-rsl
         pass
-
-
-if __name__ == "__main__":
-    # ask to @mattelothere for the constraints test files
-    C = ScheduleGraph("constraints cycle.txt")
-    D = ScheduleGraph("constraints.txt")
-    E = ScheduleGraph("constraints negative edge.txt")
-    print("is C a scheduling graph ? the answer is : {}".format(C.check(display_result=1)))     # should return False (cycle)
-    print("is D a scheduling graph ? the answer is : {}".format(D.check(display_result=1)))     # should return True
-    print("is E a scheduling graph ? the answer is : {}".format(C.check(display_result=1)))     # should return False (negative edge)
-
-    # D.display_matrix()
-    
     
