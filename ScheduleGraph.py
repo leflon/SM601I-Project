@@ -75,37 +75,32 @@ class ScheduleGraph:
         Returns:
             bool: True if there is a cycle, False otherwise.
         """
-        # TODO : check if the graph is connected, if not, return False
-        
-        # initialization
+        # Initialization
         eliminated_vertices = []
         current_matrix = copy.deepcopy(self.matrix)
         running = True
         k = 0
         while running:
-            # for every vertex in the graph, look if they have a predecessor.
+            # For every vertex in the graph, look if they have a predecessor
             for i in range(len(current_matrix)):
                 predecessors = get_predecessor(i, current_matrix)
                 if predecessors == []:
                     eliminated_vertices.append(i)
                     
-            # eliminate those who don't have predecessors
+            # Eliminate the vertices who don't have predecessors
             for vertex in eliminated_vertices:
-                vertex = vertex - eliminated_vertices.index(vertex)  # to avoid index out of range, since removing elements shifts everything
-        
+                vertex = vertex - eliminated_vertices.index(vertex)  # Adjust vertex indexes on the fly
                 remove_col(vertex, current_matrix)
                 remove_line(vertex, current_matrix)
 
             running = eliminated_vertices != []
-        
-            eliminated_vertices = []     # remove all values from eliminated_vertices
+            eliminated_vertices = []     # Reset the list of elminated vertices
             k += 1
 
-        if current_matrix == []:
-            return False
+        if current_matrix == []:    
+            return False    # Empty matrix means no cycle
         else: 
-            return True
-        # Repeat until 1/ matrix is empty 2/ eliminated set = []
+            return True     # Non-empty matrix means a cycle 
 
     def check(self, display_result=False) -> bool:
         """
@@ -126,14 +121,13 @@ class ScheduleGraph:
         else:
             if display_result:  print("there is a negative edge => not a scheduling graph")
             return False 
-
-    
+   
     def compute_ranks(self) -> None:
         """
         Computes are stores the ranks of each vertex of the graph
         """
         #TODO: implement
-        # note : the ranks can be deduced using the check() fonction
+        # note : the ranks can be deduced using a modified has_cycle() fonction
         #Assigned to: @mattelothere
         pass
     
