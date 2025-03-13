@@ -1,4 +1,10 @@
 from utils import bold, dark_gray, print_matrix
+from utils import remove_line, remove_col, get_predecessor, has_negative_edge
+import copy
+
+# TODO : add a output parameter, and redirect all the prints to that parameter.
+# this will be useful for creating the asked-for logs
+
 class ScheduleGraph:
     def __init__(self, path: str):
         """
@@ -63,6 +69,43 @@ class ScheduleGraph:
         # We want to display all asterisks and the very first cell in dark gray for better readability.
         print_matrix(adapted_matrix, lambda render, val, i, j: dark_gray(render) if val == '*' or i == j == 0 else render)
 
+    def has_cycle(self) -> bool:
+        """
+        Checks if there is a cycle in the graph.
+        Returns:
+            bool: True if there is a cycle, False otherwise.
+        """
+        # TODO : check if the graph is connected, if not, return False
+        
+        # initialization
+        eliminated_vertices = []
+        current_matrix = copy.deepcopy(self.matrix)
+        running = True
+        k = 0
+        while running:
+            # for every vertex in the graph, look if they have a predecessor.
+            for i in range(len(current_matrix)):
+                predecessors = get_predecessor(i, current_matrix)
+                if predecessors == []:
+                    eliminated_vertices.append(i)
+                    
+            # eliminate those who don't have predecessors
+            for vertex in eliminated_vertices:
+                vertex = vertex - eliminated_vertices.index(vertex)  # to avoid index out of range, since removing elements shifts everything
+        
+                remove_col(vertex, current_matrix)
+                remove_line(vertex, current_matrix)
+
+            running = eliminated_vertices != []
+        
+            eliminated_vertices = []     # remove all values from eliminated_vertices
+            k += 1
+
+        if current_matrix == []:
+            return False
+        else: 
+            return True
+        # Repeat until 1/ matrix is empty 2/ eliminated set = []
 
     def check(self, display_result=False) -> bool:
         """
@@ -72,16 +115,26 @@ class ScheduleGraph:
          Args:
             display_result: Whether the function should display the result of the check in addition to returning it.
         """ 
-        #TODO: implement
         #Assigned to: @mattelothere
-        pass
+        if not has_negative_edge(self.matrix):
+            if not self.has_cycle():
+                if display_result:  print("The graph verifies the absence of cycles and negative edges => is a valid scheduling graph.")
+                return True
+            else:
+                if display_result: print("there is a cycle => not a scheduling graph")
+                return False
+        else:
+            if display_result:  print("there is a negative edge => not a scheduling graph")
+            return False 
+
     
     def compute_ranks(self) -> None:
         """
         Computes are stores the ranks of each vertex of the graph
         """
         #TODO: implement
-        #Assigned to: @matthelothere
+        # note : the ranks can be deduced using the check() fonction
+        #Assigned to: @mattelothere
         pass
     
     def compute_calendars(self) -> None:
@@ -91,3 +144,4 @@ class ScheduleGraph:
         #TODO: implement
         #Assigned to: @hexadelusional @iri-rsl
         pass
+    

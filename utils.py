@@ -76,6 +76,78 @@ def print_matrix(matrix: list[list[Any]], transformer: Callable[[str, Any, int, 
 			print(row_sep)
 	print(border_bot)
 
+def get_predecessor(vertex_index: int, target_matrix: list[list[int]], verbose_mode:bool = False) -> list[int]:
+	"""
+	returns a list of the predecessors of a vertex in a particular target matrix
+	if target_matrix is not provided, then we'll look for the predecessors of that vertex in the self.matrix
+	Args:
+		vertex_index: an int to tell which vertex we are talking about
+		verbose_mode: an int defaulting to False that enables verbose prints if set to True.
+		target_matrix: a list of lists of ints representing the adjacency matrix, defaulting to self.matrix
+	Returns:
+		list: list containing the predecessors of that vertex
+	Examples:
+	Consider the following : 1-->2--->3 
+							/          \
+							A------>4--->O
+	with :
+	vertices = ["A", "1", ..., "4", "O"]
+
+	>get_predecessor(5), i.e. predecessors of "O" will return the indices of "3" and "4" : [3, 4]
+	>get_predecessor(0), i.e. predecessors of "A" will return an empty list : []
+	"""
+	vertices = ["α"]+[str(i) for i in range(1, len(target_matrix)-1)]+["ω"]
+	answer = []
+	for i in range(len(target_matrix)): # for every line of the adjacency mat, 
+		if target_matrix[i][vertex_index] != None: # looking at the column of the vertex, if theres a non-null value,  
+			answer.append(i)   # then the vertex behind vertex_index has at least 1 predecessor
+			if verbose_mode: print("The vertex {} has a predecessor : at indices [{}][{}], \
+			{} is accessible from {}".format(vertices[vertex_index], i, vertex_index, vertices[vertex_index], vertices[i]))
+		else:
+			if verbose_mode: print("The vertex {} has no predecessor at index [{}][{}], \
+			{} is not accessible from {}".format(vertices[vertex_index], i, vertex_index, vertices[vertex_index], vertices[i]))
+	return answer        
+
+def has_negative_edge(target_matrix: list[list[int]]) -> bool:
+	"""
+	checks if there is at least one negative edge in the target_matrix
+	if target_matrix is not provided, then we'll look in self.matrix
+	Args:
+		target_matrix: a list of lists of ints representing the adjacency matrix, defaulting to self.matrix
+	Returns:
+		bool: True if there is a negative edge, False otherwise
+	"""
+
+	answer = False
+	for line in target_matrix:
+		col = 0
+		while col < len(line) and answer == False:  # go out of the loop as soon as theres a negative
+			if line[col] != None:
+				answer = line[col] < 0
+			col += 1
+	return answer
+
+def remove_col(col_index: int, target_matrix: list[list[int]]) -> None:
+	"""
+	pops a column out of a matrix (in place)
+
+	Args : 
+		col_index: int indexing which column we should remove
+		matrix: list of lists of ints 
+	"""
+	for i in range(len(target_matrix)):
+		target_matrix[i].pop(col_index)
+		
+def remove_line(row_index: int, target_matrix: list[list[int]]) -> None:
+	"""
+	pops a row out of a matrix (in place)
+	
+		Args : 
+		col_index: int indexing which row we should remove
+		matrix: list of lists of ints 
+	"""
+	target_matrix.pop(row_index)
+
 def yesno(question: str) -> bool:
 	"""
 	Prompt the user with a yes/no question and return the response as a boolean.
@@ -88,7 +160,6 @@ def yesno(question: str) -> bool:
 	while answer not in ['y', 'n']:
 		answer = input(question + ' [y/n]: ')[:1].lower()		
 	return answer == 'y'
-
 
 def menu(options: list[str]) -> int:
 	"""
