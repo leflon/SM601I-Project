@@ -1,6 +1,8 @@
 from typing import Any, Callable
 
+
 DISABLE_ANSI = False
+
 
 def disable_ansi():
 	"""
@@ -8,6 +10,7 @@ def disable_ansi():
 	""" 
 	global DISABLE_ANSI
 	DISABLE_ANSI = True
+
 
 def bold(text: str) -> str:
 	"""
@@ -21,10 +24,12 @@ def bold(text: str) -> str:
 		return text
 	return f'\033[1m{text}\033[0m'
 
+
 def dark_gray(text: str) -> str:
 	if 'DISABLE_ANSI' in vars() and DISABLE_ANSI:
 		return text
 	return f'\033[1;30m{text}\033[0m'
+
 
 def print_matrix(matrix: list[list[Any]], transformer: Callable[[str, Any, int, int], str] = None, cell_padding = 2, header_row = True, header_column = True) -> None:
 	"""
@@ -76,6 +81,7 @@ def print_matrix(matrix: list[list[Any]], transformer: Callable[[str, Any, int, 
 			print(row_sep)
 	print(border_bot)
 
+
 def get_predecessor(vertex_index: int, target_matrix: list[list[int]], verbose_mode:bool = False) -> list[int]:
 	"""
 	returns a list of the predecessors of a vertex in a particular target matrix
@@ -98,15 +104,19 @@ def get_predecessor(vertex_index: int, target_matrix: list[list[int]], verbose_m
 	"""
 	vertices = ["α"]+[str(i) for i in range(1, len(target_matrix)-1)]+["ω"]
 	answer = []
-	for i in range(len(target_matrix)): # for every line of the adjacency mat, 
-		if target_matrix[i][vertex_index] != None: # looking at the column of the vertex, if theres a non-null value,  
-			answer.append(i)   # then the vertex behind vertex_index has at least 1 predecessor
+	for i in range(len(target_matrix)): # For every line of the adjacency mat, 
+		if target_matrix[i][vertex_index] != None: # Looking at the column of the vertex, if theres a non-null value,  
+			answer.append(i)   # Then the vertex behind vertex_index has at least 1 predecessor
+
 			if verbose_mode: print("The vertex {} has a predecessor : at indices [{}][{}], \
 			{} is accessible from {}".format(vertices[vertex_index], i, vertex_index, vertices[vertex_index], vertices[i]))
+
 		else:
 			if verbose_mode: print("The vertex {} has no predecessor at index [{}][{}], \
 			{} is not accessible from {}".format(vertices[vertex_index], i, vertex_index, vertices[vertex_index], vertices[i]))
+				
 	return answer        
+
 
 def has_negative_edge(target_matrix: list[list[int]]) -> bool:
 	"""
@@ -117,15 +127,15 @@ def has_negative_edge(target_matrix: list[list[int]]) -> bool:
 	Returns:
 		bool: True if there is a negative edge, False otherwise
 	"""
-
 	answer = False
 	for line in target_matrix:
-		col = 0
-		while col < len(line) and answer == False:  # go out of the loop as soon as theres a negative
+		col = 0		# we use a while loop in order to go out of the loop as soon as theres a negative detected
+		while col < len(line) and answer == False:  
 			if line[col] != None:
 				answer = line[col] < 0
 			col += 1
 	return answer
+
 
 def remove_col(col_index: int, target_matrix: list[list[int]]) -> None:
 	"""
@@ -133,20 +143,22 @@ def remove_col(col_index: int, target_matrix: list[list[int]]) -> None:
 
 	Args : 
 		col_index: int indexing which column we should remove
-		matrix: list of lists of ints 
+		target_matrix: list of lists of ints 
 	"""
 	for i in range(len(target_matrix)):
 		target_matrix[i].pop(col_index)
 		
+
 def remove_line(row_index: int, target_matrix: list[list[int]]) -> None:
 	"""
 	pops a row out of a matrix (in place)
 	
 		Args : 
 		col_index: int indexing which row we should remove
-		matrix: list of lists of ints 
+		target_matrix: list of lists of ints 
 	"""
 	target_matrix.pop(row_index)
+
 
 def yesno(question: str) -> bool:
 	"""
@@ -160,6 +172,7 @@ def yesno(question: str) -> bool:
 	while answer not in ['y', 'n']:
 		answer = input(question + ' [y/n]: ')[:1].lower()		
 	return answer == 'y'
+
 
 def menu(options: list[str]) -> int:
 	"""
