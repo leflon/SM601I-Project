@@ -48,6 +48,7 @@ class ScheduleGraph:
             if (not any(line)):
                 self.matrix[i][len(lines) + 1] = int(lines[i - 1].split(' ')[1])
 
+
     def display_matrix(self):
         """
         Displays the adjacency matrix of the graph.
@@ -68,6 +69,7 @@ class ScheduleGraph:
             adapted_matrix.append(row)
         # We want to display all asterisks and the very first cell in dark gray for better readability.
         print_matrix(adapted_matrix, lambda render, val, i, j: dark_gray(render) if val == '*' or i == j == 0 else render)
+
 
     def has_cycle(self) -> bool:
         """
@@ -102,6 +104,7 @@ class ScheduleGraph:
         else: 
             return True     # Non-empty matrix means a cycle 
 
+
     def check(self, display_result=False) -> bool:
         """
         Checks that the necessary properties of the graph such that it can serve as a scheduling graph are satisfied. That is:
@@ -122,15 +125,57 @@ class ScheduleGraph:
             if display_result:  print("there is a negative edge => not a scheduling graph")
             return False 
    
-    def compute_ranks(self) -> None:
+
+    def compute_ranks(self) -> dict | None:
         """
         Computes are stores the ranks of each vertex of the graph
+        If the graph contains a cycle, the function returns None.
+
+        Returns :
+            -a dict with keys = ranks, values = list of vertices' indexes having such rank
+            -None if the graph contains a cycle
+            
+        Example : 
+            running it on some particular graph will return the following
+            > G.compute_ranks()
+            > {'1': ['α'], '2': [1, 2], '3': [4], '4': ['ω']}
         """
-        #TODO: implement
-        # note : the ranks can be deduced using a modified has_cycle() fonction
         #Assigned to: @mattelothere
-        pass
+
+        if self.has_cycle():
+            return None
+
+        # Some initialization
+        ranks = {}
+        work_matrix = copy.deepcopy(self.matrix)
+        
+        # we need to do disfigure to the matrix so that we can keep track of who's who
+        work_matrix.insert(0, ["α"] + [i + 1 for i in range(len(self.matrix) - 2)] + ["ω"])
+        for i in range(len(work_matrix)):
+            work_matrix[i].insert(0, work_matrix[0][i])
+
+        # then we can run the loop, adjusting the indices to only look after the "interesting" part of the work_matrix
+        k = 1
+        while k < len(self.matrix):     # this may be improved but its working so its ok as were not losing that many iterations
+            to_elem = []
+            for i in range(1, len(work_matrix) - 1):
+                predecessors = get_predecessor(i, work_matrix[1:])
+                if predecessors == []:
+                    to_elem.append(i)
+                    try :
+                        ranks[str(k)] += [work_matrix[i][0]]
+                    except KeyError:
+                        ranks.update({str(k): [work_matrix[i][0]]})
+                
+            for vertex in to_elem:
+                vertex = vertex - to_elem.index(vertex)  # Adjust vertex indexes on the fly
+                remove_col(vertex, work_matrix)
+                remove_line(vertex, work_matrix)
+            k += 1
+
+        return ranks
     
+
     def compute_calendars(self) -> None:
         """
         Computes and stores the earliest/latest dates and the floats.
