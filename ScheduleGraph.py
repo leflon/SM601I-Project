@@ -48,6 +48,7 @@ class ScheduleGraph:
             if (not any(line)):
                 self.matrix[i][len(lines) + 1] = int(lines[i - 1].split(' ')[1])
 
+
     def display_matrix(self):
         """
         Displays the adjacency matrix of the graph.
@@ -68,6 +69,7 @@ class ScheduleGraph:
             adapted_matrix.append(row)
         # We want to display all asterisks and the very first cell in dark gray for better readability.
         print_matrix(adapted_matrix, lambda render, val, i, j: dark_gray(render) if val == '*' or i == j == 0 else render)
+
 
     def has_cycle(self) -> bool:
         """
@@ -102,6 +104,7 @@ class ScheduleGraph:
         else: 
             return True     # Non-empty matrix means a cycle 
 
+
     def check(self, display_result=False) -> bool:
         """
         Checks that the necessary properties of the graph such that it can serve as a scheduling graph are satisfied. That is:
@@ -122,15 +125,59 @@ class ScheduleGraph:
             if display_result:  print("there is a negative edge => not a scheduling graph")
             return False 
    
-    def compute_ranks(self) -> None:
+
+    def compute_ranks(self) -> list[list[int]] | None:
         """
-        Computes are stores the ranks of each vertex of the graph
+        Computes and stores the ranks of each vertex of the graph
+
+        Returns: 
+            The vertices of the graph ordered by rank or None if it includes a cycle.
+            
+        Example:
+            [[0], [1, 4], [2], [3], [5]]
+            - The rank of vertex `0` is **0**.
+            - The rank of vertices `1` and `4` is **1**.
+            - The rank of vertex `2` is **2**. 
+            - The rank of vertex `3` is **3**. 
+            - The rank of vertex `5` is **4**. 
         """
-        #TODO: implement
-        # note : the ranks can be deduced using a modified has_cycle() fonction
-        #Assigned to: @mattelothere
-        pass
+
+        if self.has_cycle(): # The notion of rank does not exist for graphs containing cycles
+            return None
+
+        ranks = []  # The array returned at the end
+        to_eleminate = None # Vertices with no predecessors at the current iteration
+        work_matrix = copy.deepcopy(self.matrix)
+        
+        # Add one column and one row acting as labels (remove row and remove col have the side effect of 'shuffling' the indices)
+        work_matrix.insert(0, [i for i in range(len(self.matrix))]) # Column labels
+        for i in range(len(work_matrix)): # Row labels
+            work_matrix[i].insert(0, work_matrix[0][i])
+
+        k = 0 # Corresponds to the rank currenly reached in the loop
+        while to_eleminate != []: # Until we have eliminated all vertices
+            to_eleminate = []
+
+            for i in range(1, len(work_matrix)): # Starting at 1 to avoid the 1st label row   
+                predecessors = get_predecessor(i, work_matrix[1:])
+                
+                if predecessors == []:
+                    to_eleminate.append(i)
+                    if (k == len(ranks)): # First vertex of rank k
+                        ranks.append([work_matrix[i][0]])
+                    else: # Additional vertices of rank k.
+                        ranks[k].append(work_matrix[i][0])
+                
+            for vertex in to_eleminate:
+                vertex = vertex - to_eleminate.index(vertex) # Adjust vertex indexes on the fly
+                remove_col(vertex, work_matrix)
+                remove_line(vertex, work_matrix)
+            
+            k += 1
+
+        return ranks
     
+
     def compute_calendars(self) -> None:
         """
         Computes and stores the earliest/latest dates and the floats.
@@ -138,4 +185,3 @@ class ScheduleGraph:
         #TODO: implement
         #Assigned to: @hexadelusional @iri-rsl
         pass
-    
