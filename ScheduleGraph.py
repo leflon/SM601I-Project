@@ -166,7 +166,7 @@ class ScheduleGraph:
                     if (k == len(ranks)): # First vertex of rank k
                         ranks.append([work_matrix[i][0]])
                     else: # Additional vertices of rank k.
-                        ranks[k] += [work_matrix[i][0]]
+                        ranks[k].append(work_matrix[i][0])
                 
             for vertex in to_eleminate:
                 vertex = vertex - to_eleminate.index(vertex) # Adjust vertex indexes on the fly
