@@ -126,52 +126,58 @@ class ScheduleGraph:
             return False 
    
 
-    def compute_ranks(self) -> dict | None:
+    def compute_ranks(self) -> list[list[int]] | None:
         """
         Computes are stores the ranks of each vertex of the graph
         If the graph contains a cycle, the function returns None.
 
         Returns :
-            -a dict with keys = ranks, values = list of vertices' indexes having such rank
+            -a list of list of ints. the first index is the rank, the second the vertex
             -None if the graph contains a cycle
             
         Example : 
-            running it on some particular graph will return the following
+            running it on some particular scheduling graph (having 4 constraints) will return the following
             > G.compute_ranks()
-            > {'1': ['α'], '2': [1, 2], '3': [4], '4': ['ω']}
+            > [[0], [1, 4], [2], [3], [5]]
+            0 is of rank 0, 1 and 4 are of rank 1, ... 
         """
         #Assigned to: @mattelothere
 
-        if self.has_cycle():
+        if self.has_cycle():    # the notion of rank does not exist for graphs containing cycles
             return None
 
         # Some initialization
-        ranks = {}
-        work_matrix = copy.deepcopy(self.matrix)
+        ranks = []  # the array we are going to return at the end
+        to_eleminate = None #vertices with no predecessors at the current iteration
+        work_matrix = copy.deepcopy(self.matrix)    # copy recursively the matrix to then pop rows and columns without affecting the base matrix
         
-        # we need to do disfigure to the matrix so that we can keep track of who's who
-        work_matrix.insert(0, ["α"] + [i + 1 for i in range(len(self.matrix) - 2)] + ["ω"])
-        for i in range(len(work_matrix)):
+        # add one column and one row acting as labels (remove row and remove col have the side effect of 'shuffling' the indices)
+        work_matrix.insert(0, [i for i in range(len(self.matrix))]) # col labels
+        for i in range(len(work_matrix)):   # row labels
             work_matrix[i].insert(0, work_matrix[0][i])
 
-        # then we can run the loop, adjusting the indices to only look after the "interesting" part of the work_matrix
-        k = 1
-        while k < len(self.matrix):     # this may be improved but its working so its ok as were not losing that many iterations
-            to_elem = []
-            for i in range(1, len(work_matrix) - 1):
-                predecessors = get_predecessor(i, work_matrix[1:])
-                if predecessors == []:
-                    to_elem.append(i)
-                    try :
-                        ranks[str(k)] += [work_matrix[i][0]]
-                    except KeyError:
-                        ranks.update({str(k): [work_matrix[i][0]]})
+        k = 0   # this k is our iteration number, used to know which rank to assingn to the eliminated vertices
+        while to_eleminate != []:   # until we have eliminated all vertices
+
+            to_eleminate = []  # clear everything
+            
+            for i in range(1, len(work_matrix)):    # range(1, ...) to not take the 1st label row   
+                predecessors = get_predecessor(i, work_matrix[1:])  # the [1:] allows to remove the 1st label row
                 
-            for vertex in to_elem:
-                vertex = vertex - to_elem.index(vertex)  # Adjust vertex indexes on the fly
+                if predecessors == []:
+                    to_eleminate.append(i)
+                    try :                     
+                        ranks[k] += [work_matrix[i][0]]     # if no vertex of rank k was found yet, this will raise and IndexError
+                    except IndexError:
+                        ranks.append([work_matrix[i][0]])   # then we append instead of concatenating the vertex 
+                
+            for vertex in to_eleminate:
+                vertex = vertex - to_eleminate.index(vertex)  # Adjust vertex indexes on the fly
                 remove_col(vertex, work_matrix)
                 remove_line(vertex, work_matrix)
-            k += 1
+            
+            k += 1  # increment rank by 1 before going to next iteration
+            
 
         return ranks
     
@@ -183,4 +189,3 @@ class ScheduleGraph:
         #TODO: implement
         #Assigned to: @hexadelusional @iri-rsl
         pass
-    
