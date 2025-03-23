@@ -45,6 +45,8 @@ while running:
 		try:
 			graph = ScheduleGraph(working_file)
 			graph.display_matrix()
+			print("ranks : ", graph.compute_ranks())
+			graph.compute_calendars()
 		except:
 			# TODO: Give more informations about the error.
 			print('Something went wrong. Please make sure the constraint table is in the right format.')

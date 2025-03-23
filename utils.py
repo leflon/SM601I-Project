@@ -115,7 +115,14 @@ def get_predecessor(vertex_index: int, target_matrix: list[list[int]], verbose_m
 			if verbose_mode: print("The vertex {} has no predecessor at index [{}][{}], \
 			{} is not accessible from {}".format(vertices[vertex_index], i, vertex_index, vertices[vertex_index], vertices[i]))
 				
-	return answer        
+	return answer
+
+def get_successor(vertex_index: int, target_matrix: list[list[int]]) -> list[int]: 
+	answer = []
+	for i in range(len(target_matrix[vertex_index])):
+		if target_matrix[vertex_index][i] is not None :
+			answer.append(i)
+	return answer
 
 
 def has_negative_edge(target_matrix: list[list[int]]) -> bool:

@@ -1,5 +1,5 @@
 from utils import bold, dark_gray, print_matrix
-from utils import remove_line, remove_col, get_predecessor, has_negative_edge
+from utils import remove_line, remove_col, get_predecessor, has_negative_edge, get_successor
 import copy
 
 # TODO : add a output parameter, and redirect all the prints to that parameter.
@@ -184,4 +184,53 @@ class ScheduleGraph:
         """
         #TODO: implement
         #Assigned to: @hexadelusional @iri-rsl
-        pass
+        actual_matrix = copy.deepcopy(self.matrix)
+        self.ranks = self.compute_ranks()
+
+        if self.ranks is None:
+            return None
+
+        ranked_vertices = [v for sublists in self.ranks for v in sublists] # Get the 2-dimension list in 1-dimension form
+        durations = []
+        for i in range(len(ranked_vertices)-1) :
+            vertex_duration = [elt for elt in actual_matrix[ranked_vertices[i]] if elt is not None][0]
+            durations.append(vertex_duration)
+        durations.append(0) # Last task doesn't have a duration but it's necessary for practical purposes 
+
+        # Computing the earlieast dates
+        earliest_dates = [0 for i in range(len(ranked_vertices))] 
+        predecessors = [get_predecessor(vertex, actual_matrix) for vertex in ranked_vertices]
+        for i in range(1, len(ranked_vertices)):
+            for j in range(len(predecessors[i])):
+                pred_index = ranked_vertices.index(predecessors[i][j])
+                potential_early_date = earliest_dates[pred_index]+durations[pred_index]
+                if potential_early_date > earliest_dates[i] :
+                    earliest_dates[i] = potential_early_date
+
+        # Computing the latest dates
+        latest_dates = [earliest_dates[len(earliest_dates)-1] for i in range(len(ranked_vertices))] # Create an initial list for the latest dates
+        successors = [get_successor(vertex, actual_matrix) for vertex in ranked_vertices]
+        for i in range(len(ranked_vertices)-2, -1, -1):
+            for j in range(len(successors[i])):
+                succ_index = ranked_vertices.index(successors[i][j])
+                potential_late_date = latest_dates[succ_index]-durations[i]
+                if potential_late_date < latest_dates[i]:
+                    latest_dates[i] = potential_late_date
+
+        # Computing total float
+        total_float = [latest_dates[i]-earliest_dates[i] for i in range(len(ranked_vertices))]
+
+        # Computing free float
+        free_float =[]
+        for i in range(len(ranked_vertices)-1):
+            succ_earliest_date = min([earliest_dates[ranked_vertices.index(vertex)] for vertex in successors[i]])
+            free_float.append(succ_earliest_date-earliest_dates[i]-durations[i])
+
+        print("Predecessors : ", predecessors)
+        print("Successors : ", successors)
+        print("Durations : ", durations)
+        print("Earliest dates : ", earliest_dates)
+        print("Latest dates : ", latest_dates)
+        print("Total Float : ", total_float)
+        print("Free Float : ", free_float)
+    
