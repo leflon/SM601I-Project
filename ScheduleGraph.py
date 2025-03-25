@@ -13,8 +13,6 @@ class ScheduleGraph:
             path: The file path to the schedule data.
         """
 
-        """Rank of each vertex of the graph"""
-        self.ranks = []
         """Earliest date of each task"""
         self.earliest_dates = []
         """Latest date of each task"""
@@ -23,6 +21,8 @@ class ScheduleGraph:
         self.total_floats = []
         """Free float of each task"""
         self.free_floats = []
+        """Critical path of the graph"""
+        self.critical_path = []
 
         file = open(path, 'r')
         lines = [line.strip() for line in file.readlines() if line.strip() != '']
@@ -185,12 +185,12 @@ class ScheduleGraph:
         #TODO: implement
         #Assigned to: @hexadelusional @iri-rsl
         actual_matrix = copy.deepcopy(self.matrix)
-        self.ranks = self.compute_ranks()
+        ranks = self.compute_ranks()
 
-        if self.ranks is None:
+        if ranks is None:
             return None
 
-        ranked_vertices = [v for sublists in self.ranks for v in sublists] # Get the 2-dimension list in 1-dimension form
+        ranked_vertices = [v for sublists in ranks for v in sublists] # Get the 2-dimension list in 1-dimension form
         durations = []
         for i in range(len(ranked_vertices)-1) :
             vertex_duration = [elt for elt in actual_matrix[ranked_vertices[i]] if elt is not None][0]
@@ -206,6 +206,7 @@ class ScheduleGraph:
                 potential_early_date = earliest_dates[pred_index]+durations[pred_index]
                 if potential_early_date > earliest_dates[i] :
                     earliest_dates[i] = potential_early_date
+        self.earliest_dates = earliest_dates
 
         # Computing the latest dates
         latest_dates = [earliest_dates[len(earliest_dates)-1] for i in range(len(ranked_vertices))] # Create an initial list for the latest dates
@@ -216,21 +217,23 @@ class ScheduleGraph:
                 potential_late_date = latest_dates[succ_index]-durations[i]
                 if potential_late_date < latest_dates[i]:
                     latest_dates[i] = potential_late_date
+        self.latest_dates = latest_dates
 
         # Computing total float
         total_float = [latest_dates[i]-earliest_dates[i] for i in range(len(ranked_vertices))]
+        self.total_floats = total_float
 
         # Computing free float
         free_float =[]
         for i in range(len(ranked_vertices)-1):
             succ_earliest_date = min([earliest_dates[ranked_vertices.index(vertex)] for vertex in successors[i]])
             free_float.append(succ_earliest_date-earliest_dates[i]-durations[i])
+        self.free_floats = free_float
+        
+        # Computing critical path
+        critical_path = []
+        for i in range(len(ranked_vertices)-1):
+            if free_float[i]==0:
+                critical_path.append(ranked_vertices[i])
+        self.critical_path = critical_path
 
-        print("Predecessors : ", predecessors)
-        print("Successors : ", successors)
-        print("Durations : ", durations)
-        print("Earliest dates : ", earliest_dates)
-        print("Latest dates : ", latest_dates)
-        print("Total Float : ", total_float)
-        print("Free Float : ", free_float)
-    
