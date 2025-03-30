@@ -123,7 +123,7 @@ def get_predecessors(vertex_index: int, target_matrix: list[list[int]], verbose_
 		if target_matrix[i][vertex_index] != None: # Looking at the column of the vertex, if theres a non-null value,  
 			answer.append(i)   # Then the vertex behind vertex_index has at least 1 predecessor
 
-			if verbose_mode: print("The vertex {} has a predecessor : at indices [{}][{}], \
+			if verbose_mode: print("The vertex {} has a predecessor: at indices [{}][{}], \
 			{} is accessible from {}".format(vertices[vertex_index], i, vertex_index, vertices[vertex_index], vertices[i]))
 
 		else:
@@ -135,7 +135,7 @@ def get_predecessors(vertex_index: int, target_matrix: list[list[int]], verbose_
 def get_successors(vertex_index: int, target_matrix: list[list[int]]) -> list[int]: 
 	answer = []
 	for i in range(len(target_matrix[vertex_index])):
-		if target_matrix[vertex_index][i] is not None :
+		if target_matrix[vertex_index][i] is not None:
 			answer.append(i)
 	return answer
 

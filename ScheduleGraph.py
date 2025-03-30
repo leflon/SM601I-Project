@@ -205,7 +205,7 @@ class ScheduleGraph:
             for j in range(len(predecessors[i])):
                 pred_index = ranked_vertices.index(predecessors[i][j])
                 potential_early_date = earliest_dates[pred_index]+durations[pred_index]
-                if potential_early_date > earliest_dates[i] :
+                if potential_early_date > earliest_dates[i]:
                     earliest_dates[i] = potential_early_date
         self.earliest_dates = earliest_dates
 
@@ -254,15 +254,15 @@ class ScheduleGraph:
         critical_paths = [[ranked_vertices[i] for i in path] for path in all_critical_paths]
         max_critical_path_length = 0
         longest_critical_paths = []
-        for path in critical_paths :
+        for path in critical_paths:
             path_length = 0
             for i in range(len(path)-1):
                 path_length += actual_matrix[path[i]][path[i+1]]
             
-            if max_critical_path_length < path_length :
+            if max_critical_path_length < path_length:
                 max_critical_path_length = path_length
                 longest_critical_paths = [path]
-            elif max_critical_path_length == path_length :
+            elif max_critical_path_length == path_length:
                 longest_critical_paths.append(path)
 
         self.critical_paths = longest_critical_paths
