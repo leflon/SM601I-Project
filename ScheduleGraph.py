@@ -18,8 +18,10 @@ class ScheduleGraph:
         self.total_floats = []
         """Free float of each task"""
         self.free_floats = []
-        """Critical path of the graph"""
+        """Critical paths of the graph"""
         self.critical_paths = []
+        """Length of critical paths"""
+        self.critical_paths_length = 0
 
         file = open(path, 'r')
         lines = [line.strip() for line in file.readlines() if line.strip() != '']
@@ -230,13 +232,13 @@ class ScheduleGraph:
         
         # Computing critical paths
         critical_tasks = []
-        all_critical_paths = []
         for i in range(len(ranked_vertices)):
             if self.total_floats[i]==0:
                 critical_tasks.append(ranked_vertices[i])
         first_task = 0
         final_task = len(ranked_vertices) - 1
 
+        all_critical_paths = []
         def dfs(critical_path, vertex):
          # Recursive Depth-first search to find paths from firt task to last task 
             if vertex == final_task:  # If the final task was reached, then the path is complete
@@ -250,4 +252,18 @@ class ScheduleGraph:
         
         dfs([first_task], first_task)
         critical_paths = [[ranked_vertices[i] for i in path] for path in all_critical_paths]
-        self.critical_paths = sorted(critical_paths, key=len, reverse=True)
+        max_critical_path_length = 0
+        longest_critical_paths = []
+        for path in critical_paths :
+            path_length = 0
+            for i in range(len(path)-1):
+                path_length += actual_matrix[path[i]][path[i+1]]
+            
+            if max_critical_path_length < path_length :
+                max_critical_path_length = path_length
+                longest_critical_paths = [path]
+            elif max_critical_path_length == path_length :
+                longest_critical_paths.append(path)
+
+        self.critical_paths = longest_critical_paths
+        self.critical_paths_length = max_critical_path_length

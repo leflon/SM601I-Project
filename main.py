@@ -155,6 +155,7 @@ while running:
 			if graph.critical_paths :
 				for path in graph.critical_paths :
 					print_matrix([[' -> '.join([vertex_name(i, N) for i in path])]], header_row=False)
+				print_matrix([['Length of critical paths : '+ str(graph.critical_paths_length)]])
 			else :
 				print_matrix([['No Critical Path']])
 				
