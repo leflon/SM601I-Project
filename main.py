@@ -158,7 +158,6 @@ while running:
 				print_matrix([['Length of critical paths : '+ str(graph.critical_paths_length)]])
 			else :
 				print_matrix([['No Critical Path']])
-				
 		except:
 			print('Something went wrong while treating this file.')
 			print('Please check the file and try again.')
