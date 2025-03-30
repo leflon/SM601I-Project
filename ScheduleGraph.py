@@ -31,6 +31,8 @@ class ScheduleGraph:
         # Absent edges are represented as None, to avoid confusion with 0-valued edges from alpha.
         """Adjacency matrix of the graph"""
         self.matrix: list[list[int | None]] = [[None for _ in range(len(lines) + 2)] for _ in range(len(lines) + 2)]
+        """Duration of each task"""
+        self.durations = [None] * (len(lines) + 2)
         for line in lines:
             split = line.split(' ')
             vertex = int(split[0])
@@ -42,6 +44,8 @@ class ScheduleGraph:
             # Else, we add each constraint to the matrix
             for c in constraints:
                 self.matrix[c][vertex] = int(lines[c - 1].split(' ')[1])
+            # We also store the duration of the task separately
+            self.durations[vertex] = int(split[1])
         # We check dead-ends to link them forwards to the omega vertex
         for i in range(1, len(self.matrix) - 1):
             line = self.matrix[i]
@@ -55,7 +59,6 @@ class ScheduleGraph:
         """
         N = len(self.matrix)
         adapted_matrix = [] # Adds the names of rows and columns to the matrix, and replaces Nones with asterisks
-        vertex_name = lambda index: 'α' if index == 0 else 'ω' if index == N - 1 else str(index)
         top_row = ['\\'] # This first cell is the top corner of the table.
         for i in range(N):
             top_row.append(vertex_name(i, N))
