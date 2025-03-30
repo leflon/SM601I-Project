@@ -2,9 +2,6 @@ from utils import bold, dark_gray, print_matrix, vertex_name
 from utils import remove_line, remove_col, get_predecessors, has_negative_edge, get_successors
 import copy
 
-# TODO : add a output parameter, and redirect all the prints to that parameter.
-# this will be useful for creating the asked-for logs
-
 class ScheduleGraph:
     def __init__(self, path: str):
         """
