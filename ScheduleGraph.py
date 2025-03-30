@@ -1,5 +1,5 @@
 from utils import bold, dark_gray, print_matrix, vertex_name
-from utils import remove_line, remove_col, get_predecessor, has_negative_edge, get_successor
+from utils import remove_line, remove_col, get_predecessors, has_negative_edge, get_successors
 import copy
 
 # TODO : add a output parameter, and redirect all the prints to that parameter.
@@ -88,7 +88,7 @@ class ScheduleGraph:
         while running:
             # For every vertex in the graph, look if they have a predecessor
             for i in range(len(current_matrix)):
-                predecessors = get_predecessor(i, current_matrix)
+                predecessors = get_predecessors(i, current_matrix)
                 if predecessors == []:
                     eliminated_vertices.append(i)
                     
@@ -162,7 +162,7 @@ class ScheduleGraph:
             to_eleminate = []
 
             for i in range(1, len(work_matrix)): # Starting at 1 to avoid the 1st label row   
-                predecessors = get_predecessor(i, work_matrix[1:])
+                predecessors = get_predecessors(i, work_matrix[1:])
                 
                 if predecessors == []:
                     to_eleminate.append(i)
@@ -201,7 +201,7 @@ class ScheduleGraph:
 
         # Computing the earlieast dates
         earliest_dates = [0] * len(ranked_vertices) 
-        predecessors = [get_predecessor(vertex, actual_matrix) for vertex in ranked_vertices]
+        predecessors = [get_predecessors(vertex, actual_matrix) for vertex in ranked_vertices]
         for i in range(1, len(ranked_vertices)): # Starting from 1 because alpha's earliest date is always 0
             for j in range(len(predecessors[i])):
                 pred_index = ranked_vertices.index(predecessors[i][j])
@@ -212,7 +212,7 @@ class ScheduleGraph:
 
         # Computing the latest dates
         latest_dates = [earliest_dates[len(earliest_dates)-1] for i in range(len(ranked_vertices))] # Create an initial list for the latest dates
-        successors = [get_successor(vertex, actual_matrix) for vertex in ranked_vertices]
+        successors = [get_successors(vertex, actual_matrix) for vertex in ranked_vertices]
         for i in range(len(ranked_vertices)-2, -1, -1):
             for j in range(len(successors[i])):
                 succ_index = ranked_vertices.index(successors[i][j])

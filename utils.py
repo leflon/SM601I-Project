@@ -97,7 +97,7 @@ def print_matrix(matrix: list[list[Any]], transformer: Callable[[str, Any, int, 
 	print(border_bot)
 
 
-def get_predecessor(vertex_index: int, target_matrix: list[list[int]], verbose_mode:bool = False) -> list[int]:
+def get_predecessors(vertex_index: int, target_matrix: list[list[int]], verbose_mode:bool = False) -> list[int]:
 	"""
 	returns a list of the predecessors of a vertex in a particular target matrix
 	if target_matrix is not provided, then we'll look for the predecessors of that vertex in the self.matrix
@@ -132,7 +132,7 @@ def get_predecessor(vertex_index: int, target_matrix: list[list[int]], verbose_m
 				
 	return answer
 
-def get_successor(vertex_index: int, target_matrix: list[list[int]]) -> list[int]: 
+def get_successors(vertex_index: int, target_matrix: list[list[int]]) -> list[int]: 
 	answer = []
 	for i in range(len(target_matrix[vertex_index])):
 		if target_matrix[vertex_index][i] is not None :
