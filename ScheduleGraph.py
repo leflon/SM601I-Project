@@ -182,8 +182,7 @@ class ScheduleGraph:
         """
         Computes and stores the earliest/latest dates and the floats.
         """
-        #TODO: implement
-        #Assigned to: @hexadelusional @iri-rsl
+
         actual_matrix = copy.deepcopy(self.matrix)
         ranks = self.compute_ranks()
 
@@ -192,15 +191,15 @@ class ScheduleGraph:
 
         ranked_vertices = [v for sublists in ranks for v in sublists] # Get the 2-dimension list in 1-dimension form
         durations = []
-        for i in range(len(ranked_vertices)-1) :
+        for i in range(len(ranked_vertices)-1):
             vertex_duration = [elt for elt in actual_matrix[ranked_vertices[i]] if elt is not None][0]
             durations.append(vertex_duration)
-        durations.append(0) # Last task doesn't have a duration but it's necessary for practical purposes 
+        durations.append(0) # Last task doesn't have a duration but this will be access when computing latest dates. 
 
         # Computing the earlieast dates
-        earliest_dates = [0 for i in range(len(ranked_vertices))] 
+        earliest_dates = [0] * len(ranked_vertices) 
         predecessors = [get_predecessor(vertex, actual_matrix) for vertex in ranked_vertices]
-        for i in range(1, len(ranked_vertices)):
+        for i in range(1, len(ranked_vertices)): # Starting from 1 because alpha's earliest date is always 0
             for j in range(len(predecessors[i])):
                 pred_index = ranked_vertices.index(predecessors[i][j])
                 potential_early_date = earliest_dates[pred_index]+durations[pred_index]
@@ -220,8 +219,7 @@ class ScheduleGraph:
         self.latest_dates = latest_dates
 
         # Computing total float
-        total_float = [latest_dates[i]-earliest_dates[i] for i in range(len(ranked_vertices))]
-        self.total_floats = total_float
+        self.total_floats = [latest_dates[i]-earliest_dates[i] for i in range(len(ranked_vertices))]
 
         # Computing free float
         free_float =[]
@@ -236,4 +234,3 @@ class ScheduleGraph:
             if free_float[i]==0:
                 critical_path.append(ranked_vertices[i])
         self.critical_path = critical_path
-
