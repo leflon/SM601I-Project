@@ -1,4 +1,4 @@
-from utils import bold, dark_gray, print_matrix
+from utils import bold, dark_gray, print_matrix, vertex_name
 from utils import remove_line, remove_col, get_predecessor, has_negative_edge, get_successor
 import copy
 
@@ -58,11 +58,11 @@ class ScheduleGraph:
         vertex_name = lambda index: 'α' if index == 0 else 'ω' if index == N - 1 else str(index)
         top_row = ['\\'] # This first cell is the top corner of the table.
         for i in range(N):
-            top_row.append(vertex_name(i))
+            top_row.append(vertex_name(i, N))
         adapted_matrix = [top_row.copy()]
         for i in range(N):
             row = self.matrix[i].copy()
-            row.insert(0, vertex_name(i))
+            row.insert(0, vertex_name(i, N))
             for j in range(N + 1):
                 if row[j] == None: 
                     row[j] = '*'

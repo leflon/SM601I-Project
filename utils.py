@@ -30,6 +30,21 @@ def dark_gray(text: str) -> str:
 		return text
 	return f'\033[1;30m{text}\033[0m'
 
+def vertex_name(index: int, N: int) -> str:
+	"""
+	Returns the name of a vertex based on its index and the total number of vertices.
+	Args:
+		index (int): The index of the vertex.
+		N (int): The total number of vertices.
+	Returns:
+		str: The name of the vertex, either 'α', 'ω', or its index as a string.
+	"""
+	if index == 0:
+		return 'α'
+	elif index == N - 1:
+		return 'ω'
+	else:
+		return str(index)
 
 def print_matrix(matrix: list[list[Any]], transformer: Callable[[str, Any, int, int], str] = None, cell_padding = 2, header_row = True, header_column = True) -> None:
 	"""
