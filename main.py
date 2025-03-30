@@ -106,7 +106,7 @@ while running:
 					predecessors = predecessors if predecessors else '-'
 					earliest_dates[3].append(predecessors)
 					if (j == 0): pred_dates = '0'
-					else: pred_date = ', '.join([f'{graph.earliest_dates[ranks_flat.index(l)]}({vertex_name(l, N)})' for l in get_predecessors(j, graph.matrix)])
+					else: pred_dates = ', '.join([f'{graph.earliest_dates[ranks_flat.index(l)]}({vertex_name(l, N)})' for l in get_predecessors(j, graph.matrix)])
 					earliest_dates[4].append(pred_dates)
 					earliest_dates[5].append(graph.earliest_dates[k])
 					k+=1
