@@ -19,7 +19,7 @@ class ScheduleGraph:
         """Free float of each task"""
         self.free_floats = []
         """Critical path of the graph"""
-        self.critical_path = []
+        self.critical_paths = []
 
         file = open(path, 'r')
         lines = [line.strip() for line in file.readlines() if line.strip() != '']
@@ -228,9 +228,26 @@ class ScheduleGraph:
             free_float.append(succ_earliest_date-earliest_dates[i]-durations[i])
         self.free_floats = free_float + [0]
         
-        # Computing critical path
-        critical_path = []
-        for i in range(len(ranked_vertices)-1):
-            if free_float[i]==0:
-                critical_path.append(ranked_vertices[i])
-        self.critical_path = critical_path + [len(self.matrix) - 1]
+        # Computing critical paths
+        critical_tasks = []
+        all_critical_paths = []
+        for i in range(len(ranked_vertices)):
+            if self.total_floats[i]==0:
+                critical_tasks.append(ranked_vertices[i])
+        first_task = 0
+        final_task = len(ranked_vertices) - 1
+
+        def dfs(critical_path, vertex):
+         # Recursive Depth-first search to find paths from firt task to last task 
+            if vertex == final_task:  # If the final task was reached, then the path is complete
+                all_critical_paths.append(critical_path[:])  
+                return
+            
+            for succ in successors[vertex]:  
+                succ_index = ranked_vertices.index(succ)
+                if succ_index in critical_tasks:  # Only consider critical successors
+                    dfs(critical_path + [succ_index], succ_index)
+        
+        dfs([first_task], first_task)
+        critical_paths = [[ranked_vertices[i] for i in path] for path in all_critical_paths]
+        self.critical_paths = sorted(critical_paths, key=len, reverse=True)
