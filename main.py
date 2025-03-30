@@ -63,8 +63,11 @@ while running:
 		if trace_value: # The trace_value is the file we want to test
 			working_file = trace_value
 		else:
-			print('Please select a constraint table to import:')
 			files = [f for f in listdir() if isfile(f) and f.endswith('.txt')] # We ignore directories and non .txt files.
+			if len(files) == 0:
+				print('No constraint tables found. Please make sure your current working directory contains .txt files.')
+				continue
+			print('Please select a constraint table to import:')
 			selected_index = menu([f.split('.txt')[0] for f in files]) # For readability, we don't display the file extension in the list
 			working_file = files[selected_index]
 		# Then, we can instantiate our ScheduleGraph and run the different algorithms on it
