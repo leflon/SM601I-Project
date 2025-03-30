@@ -229,11 +229,11 @@ class ScheduleGraph:
         for i in range(len(ranked_vertices)-1):
             succ_earliest_date = min([earliest_dates[ranked_vertices.index(vertex)] for vertex in successors[i]])
             free_float.append(succ_earliest_date-earliest_dates[i]-durations[i])
-        self.free_floats = free_float
+        self.free_floats = free_float + [0]
         
         # Computing critical path
         critical_path = []
         for i in range(len(ranked_vertices)-1):
             if free_float[i]==0:
                 critical_path.append(ranked_vertices[i])
-        self.critical_path = critical_path
+        self.critical_path = critical_path + [len(self.matrix) - 1]
