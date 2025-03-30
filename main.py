@@ -69,86 +69,90 @@ while running:
 			working_file = files[selected_index]
 		# Then, we can instantiate our ScheduleGraph and run the different algorithms on it
 		print(f'Importing constraints from {bold(working_file)}...')
-		#try:
-		graph = ScheduleGraph(working_file)
-		graph.display_matrix()
+		try:
+			graph = ScheduleGraph(working_file)
+			graph.display_matrix()
 
-		if graph.has_cycle():
-			print(bold('This graph contains cycles, and therefore cannot be scheduled.'))
+			if graph.has_cycle():
+				print(bold('This graph contains cycles, and therefore cannot be scheduled.'))
+				continue
+
+			N = len(graph.matrix)
+			# Earliest dates
+			earliest_dates = [
+				['Rank'],
+				['Task'],
+				['Duration'],
+				['Predecessors'],
+				['Dates per predecessor'],
+				['Earliest dates'],
+			]
+			# We can now compute the calendars
+			graph.compute_calendars()
+			ranks = graph.compute_ranks()
+			# The dates are stored in the order of the ranks, this is used to find the indexes of said dates based on task names.
+			ranks_flat = [j for i in ranks for j in i]
+			if ranks is None:
+				print(bold('This graph contains cycles, and therefore cannot be scheduled.'))
+				continue
+			k = 0 # The earliest dates are in the same order as the ranks, this counter keeps track of the current earliest date index.
+
+			for i in range(len(ranks)):
+				for j in ranks[i]:
+					earliest_dates[0].append(i)	
+					earliest_dates[1].append(vertex_name(j, N))
+					earliest_dates[2].append(graph.durations[j] if j != 0 and j != len(graph.matrix) - 1 else 0)
+					predecessors = ', '.join([vertex_name(k, N) for k in get_predecessors(j, graph.matrix)])
+					predecessors = predecessors if predecessors else '-'
+					earliest_dates[3].append(predecessors)
+					if (j == 0): pred_dates = '0'
+					else: pred_date = ', '.join([f'{graph.earliest_dates[ranks_flat.index(l)]}({vertex_name(l, N)})' for l in get_predecessors(j, graph.matrix)])
+					earliest_dates[4].append(pred_dates)
+					earliest_dates[5].append(graph.earliest_dates[k])
+					k+=1
+			print_matrix([['Earliest dates calendar']])
+			print_matrix(earliest_dates, header_row=False)
+			# Latest dates
+			latest_dates = [
+				earliest_dates[0],
+				earliest_dates[1],
+				earliest_dates[2],
+				['Successors'],
+				['Dates per successor'],
+				['Latest dates'],
+			]
+			k = 0
+			for i in range(len(ranks)):
+				for j in ranks[i]:
+					sucessors = ', '.join([vertex_name(k, N) for k in get_successors(j, graph.matrix)])
+					sucessors = sucessors if sucessors else '-'
+					latest_dates[3].append(sucessors)
+					if (j == len(graph.matrix) - 1): succ_dates = graph.earliest_dates[-1]
+					else: succ_dates = ', '.join([f'{graph.latest_dates[ranks_flat.index(l)]}({vertex_name(l, N)})' for l in get_successors(j, graph.matrix)])
+					latest_dates[4].append(succ_dates)
+					latest_dates[5].append(graph.latest_dates[k])
+					k+=1
+
+			print_matrix([['Latest dates calendar']])
+			print_matrix(latest_dates, header_row=False)
+
+			# Floats
+			floats = [
+				latest_dates[0],
+				latest_dates[1],
+				earliest_dates[-1],
+				latest_dates[-1],
+				['Free float'] + graph.free_floats,
+				['Total float'] + graph.total_floats,
+			]
+			print_matrix([['Total & Free floats calendar']])
+			print_matrix(floats, header_row=False, transformer=lambda f,v,y,x: dark_gray(f) if y != 0 and v == 0 else f)
+			# Critical path
+			print_matrix([['Critical Path']])
+			print_matrix([[' -> '.join([vertex_name(i, N) for i in graph.critical_path])]], header_row=False)
+		except:
+			print('Something went wrong while treating this file.')
+			print('Please check the file and try again.')
 			continue
-
-		N = len(graph.matrix)
-		# Earliest dates
-		earliest_dates = [
-			['Rank'],
-			['Task'],
-			['Duration'],
-			['Predecessors'],
-			['Dates per predecessor'],
-			['Earliest dates'],
-		]
-		# We can now compute the calendars
-		graph.compute_calendars()
-		ranks = graph.compute_ranks()
-		# The dates are stored in the order of the ranks, this is used to find the indexes of said dates based on task names.
-		ranks_flat = [j for i in ranks for j in i]
-		if ranks is None:
-			print(bold('This graph contains cycles, and therefore cannot be scheduled.'))
-			continue
-		k = 0 # The earliest dates are in the same order as the ranks, this counter keeps track of the current earliest date index.
-
-		for i in range(len(ranks)):
-			for j in ranks[i]:
-				earliest_dates[0].append(i)	
-				earliest_dates[1].append(vertex_name(j, N))
-				earliest_dates[2].append(graph.durations[j] if j != 0 and j != len(graph.matrix) - 1 else 0)
-				predecessors = ', '.join([vertex_name(k, N) for k in get_predecessors(j, graph.matrix)])
-				predecessors = predecessors if predecessors else '-'
-				earliest_dates[3].append(predecessors)
-				if (j == 0): pred_dates = '0'
-				else: pred_date = ', '.join([f'{graph.earliest_dates[ranks_flat.index(l)]}({vertex_name(l, N)})' for l in get_predecessors(j, graph.matrix)])
-				earliest_dates[4].append(pred_dates)
-				earliest_dates[5].append(graph.earliest_dates[k])
-				k+=1
-		print_matrix([['Earliest dates calendar']])
-		print_matrix(earliest_dates, header_row=False)
-		# Latest dates
-		latest_dates = [
-			earliest_dates[0],
-			earliest_dates[1],
-			earliest_dates[2],
-			['Successors'],
-			['Dates per successor'],
-			['Latest dates'],
-		]
-		k = 0
-		for i in range(len(ranks)):
-			for j in ranks[i]:
-				sucessors = ', '.join([vertex_name(k, N) for k in get_successors(j, graph.matrix)])
-				sucessors = sucessors if sucessors else '-'
-				latest_dates[3].append(sucessors)
-				if (j == len(graph.matrix) - 1): succ_dates = graph.earliest_dates[-1]
-				else: succ_dates = ', '.join([f'{graph.latest_dates[ranks_flat.index(l)]}({vertex_name(l, N)})' for l in get_successors(j, graph.matrix)])
-				latest_dates[4].append(succ_dates)
-				latest_dates[5].append(graph.latest_dates[k])
-				k+=1
-
-		print_matrix([['Latest dates calendar']])
-		print_matrix(latest_dates, header_row=False)
-
-		# Floats
-		floats = [
-			latest_dates[0],
-			latest_dates[1],
-			earliest_dates[-1],
-			latest_dates[-1],
-			['Free float'] + graph.free_floats,
-			['Total float'] + graph.total_floats,
-		]
-		print_matrix([['Total & Free floats calendar']])
-		print_matrix(floats, header_row=False, transformer=lambda f,v,y,x: dark_gray(f) if y != 0 and v == 0 else f)
-		# Critical path
-		print_matrix([['Critical Path']])
-		print_matrix([[' -> '.join([vertex_name(i, N) for i in graph.critical_path])]], header_row=False)
 
 print('Goodbye!')
