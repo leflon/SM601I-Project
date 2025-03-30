@@ -33,8 +33,8 @@ while running:
 		print_matrix([['Ingé1 INT-1 • Group 5'], ['Adèle Chamoux'], ['Mattéo Launay'], ['Paul Leflon'], ['Iriantsoa Rasoloarivalona']], header_column=False)
 	elif choice == 1: # Help
 		print('To make a constraint accessible to this program, please save it in a .txt file and place it in the same directory as this file.')
-		print('Then, you will find it in the contraint tables list when using the', bold(actions[0]), 'feature.')
-	elif choice == 0: # Contraint table test
+		print('Then, you will find it in the constraint tables list when using the', bold(actions[0]), 'feature.')
+	elif choice == 0: # Constraint table test
 		# First, we let the user choose the table they want to test.
 		print('Please select a constraint table to import:')
 		files = [f for f in listdir() if isfile(f) and f.endswith('.txt')] # We ignore directories and non .txt files.
@@ -45,6 +45,8 @@ while running:
 		try:
 			graph = ScheduleGraph(working_file)
 			graph.display_matrix()
+			print("ranks : ", graph.compute_ranks())
+			graph.compute_calendars()
 		except:
 			# TODO: Give more informations about the error.
 			print('Something went wrong. Please make sure the constraint table is in the right format.')
