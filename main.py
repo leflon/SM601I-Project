@@ -149,7 +149,12 @@ while running:
 			print_matrix(floats, header_row=False, transformer=lambda f,v,y,x: dark_gray(f) if y != 0 and v == 0 else f)
 			# Critical path
 			print_matrix([['Critical Path']])
-			print_matrix([[' -> '.join([vertex_name(i, N) for i in graph.critical_path])]], header_row=False)
+			if graph.critical_paths :
+				for path in graph.critical_paths :
+					print_matrix([[' -> '.join([vertex_name(i, N) for i in path])]], header_row=False)
+			else :
+				print_matrix([['No Critical Path']])
+				
 		except:
 			print('Something went wrong while treating this file.')
 			print('Please check the file and try again.')

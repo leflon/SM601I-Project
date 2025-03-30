@@ -228,15 +228,14 @@ class ScheduleGraph:
             free_float.append(succ_earliest_date-earliest_dates[i]-durations[i])
         self.free_floats = free_float + [0]
         
-        # Computing critical path
-        
+        # Computing critical paths
         critical_tasks = []
         all_critical_paths = []
         for i in range(len(ranked_vertices)):
             if self.total_floats[i]==0:
                 critical_tasks.append(ranked_vertices[i])
         first_task = 0
-        final_task = len(ranked_vertices-1) - 1
+        final_task = len(ranked_vertices) - 1
 
         def dfs(critical_path, vertex):
          # Recursive Depth-first search to find paths from firt task to last task 
@@ -250,6 +249,5 @@ class ScheduleGraph:
                     dfs(critical_path + [succ_index], succ_index)
         
         dfs([first_task], first_task)
-        max_length = max(len(path) for path in all_critical_paths)
-        longest_critical_paths = [path for path in all_critical_paths if len(path)==max_length]
-        self.critical_paths = [[ranked_vertices[i] for i in path] for path in longest_critical_paths]
+        critical_paths = [[ranked_vertices[i] for i in path] for path in all_critical_paths]
+        self.critical_paths = sorted(critical_paths, key=len, reverse=True)
