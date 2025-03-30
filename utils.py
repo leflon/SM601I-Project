@@ -26,7 +26,7 @@ def bold(text: str) -> str:
 
 
 def dark_gray(text: str) -> str:
-	if 'DISABLE_ANSI' in vars() and DISABLE_ANSI:
+	if DISABLE_ANSI:
 		return text
 	return f'\033[1;30m{text}\033[0m'
 
